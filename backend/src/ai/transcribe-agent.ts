@@ -209,6 +209,9 @@ export class TranscribeAgent extends EventEmitter{
                         this.#speechStream = null;
                         this.emit("stream:queue#unsafe", this.#prepareMetadata(requestId));
                     })
+                    .on("finish", () => {
+                        speechStream.destroy();
+                    })
                     .on('error', this.#handlerFatalError(requestId))
                     .on('data', this.#handlerSpeechOnData(requestId))
                 this.emit("stream:open", speechStream, this.#prepareMetadata(requestId));
@@ -260,17 +263,16 @@ export class TranscribeAgent extends EventEmitter{
         return chunks;
     }
     
-    end(){
-        (async()=>{
-            const result = await this.#agent.invoke({
-                messages: [
-                    new HumanMessage(TRANSCRIBE_AGENT_AUDIO_DONE)
-                ]
-            })
-            const lastMessage = result.messages[result.messages.length - 1];
-            this.summary = lastMessage.content;
-            this.emit("summary:done", this.summary, this.#prepareMetadata(undefined));
-        })()
+    async summarize(){
+        const result = await this.#agent.invoke({
+            messages: [
+                new HumanMessage(TRANSCRIBE_AGENT_AUDIO_DONE)
+            ]
+        })
+        const lastMessage = result.messages[result.messages.length - 1];
+        this.summary = lastMessage.content;
+        this.emit("summary:done", this.summary, this.#prepareMetadata(undefined));
+        return this.summary;
     }
 
     close(){

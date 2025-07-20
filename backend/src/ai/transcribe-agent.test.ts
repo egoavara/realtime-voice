@@ -27,27 +27,32 @@ agent.on("stream:close", () => {
     console.log("TranscribeAgent stream closed");
 });
 
+agent.on("stream:done", () => {
+    console.log("TranscribeAgent stream done");
+    agent.summarize().then((summary) => {
+        console.log("TranscribeAgent summary done:", summary);
+    })
+});
+
 agent.on("stream:queue#unsafe", () => {
     console.log("TranscribeAgent stream queue unsafe");
 });
-
-
 
 agent.on("transcribe:done", (done) => {
     console.log(`[${done.requestId}] transcribe:done : ${done.represent}`);
 });
 
-agent.on("ai:tool:call", (call, msg) => {
-    console.log(`[${call.id}] ai:tool:call : ${call.name}(${JSON.stringify(call.args, undefined, 4)})`);
-});
+// agent.on("ai:tool:call", (call, msg) => {
+//     console.log(`[${call.id}] ai:tool:call : ${call.name}(${JSON.stringify(call.args, undefined, 4)})`);
+// });
 
-agent.on("ai:tool:result", (result, msg) => {
-    console.log(`[${msg.id}] ai:tool result ${msg.name}: ${JSON.stringify(result, undefined, 4)}`);
-});
+// agent.on("ai:tool:result", (result, msg) => {
+//     console.log(`[${msg.id}] ai:tool result ${msg.name}: ${JSON.stringify(result, undefined, 4)}`);
+// });
 
-agent.on("ai:response", (resp, msg) => {
-    console.log(`[${msg.id}] ai:response : ${JSON.stringify(resp, undefined, 4)}`);
-});
+// agent.on("ai:response", (resp, msg) => {
+//     console.log(`[${msg.id}] ai:response : ${JSON.stringify(resp, undefined, 4)}`);
+// });
 
 
 agent.on("stream:close", (stream) => {
