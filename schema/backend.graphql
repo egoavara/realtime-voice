@@ -1,0 +1,87 @@
+# Session Management
+type Session {
+  id: ID!
+  name: String!
+  createdAt: String!
+  isActive: Boolean!
+}
+
+# Audio Data
+type AudioMessage {
+  id: ID!
+  sessionId: ID!
+  audioData: String!  # Base64 encoded audio
+  timestamp: String!
+  duration: Float!    # in seconds
+  format: AudioFormat!
+}
+
+enum AudioFormat {
+  MP3
+  WAV
+  OGG
+  WEBM
+}
+
+# Events
+union SessionEvent = AudioMessageEvent | SessionStartedEvent | SessionEndedEvent
+
+type AudioMessageEvent {
+  id: ID!
+  type: String!
+  sessionId: ID!
+  audioMessage: AudioMessage!
+  timestamp: String!
+}
+
+type SessionStartedEvent {
+  id: ID!
+  type: String!
+  session: Session!
+  timestamp: String!
+}
+
+type SessionEndedEvent {
+  id: ID!
+  type: String!
+  sessionId: ID!
+  timestamp: String!
+}
+
+# Input Types
+input CreateSessionInput {
+  name: String!
+}
+
+input SendAudioInput {
+  sessionId: ID!
+  audioData: String!
+  duration: Float!
+  format: AudioFormat!
+}
+
+# Queries
+type Query {
+  # Session queries
+  sessions: [Session!]!
+  session(id: ID!): Session
+  
+  # Audio message queries
+  audioMessages(sessionId: ID!, limit: Int = 50, offset: Int = 0): [AudioMessage!]!
+}
+
+# Mutations
+type Mutation {
+  # Session mutations
+  createSession(input: CreateSessionInput!): Session!
+  endSession(sessionId: ID!): Boolean!
+  
+  # Audio message mutations
+  sendAudio(input: SendAudioInput!): AudioMessage!
+}
+
+# Subscriptions for real-time events
+type Subscription {
+  # Session events subscription
+  sessionEvents(sessionId: ID!): SessionEvent!
+}

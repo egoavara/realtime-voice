@@ -1,0 +1,40 @@
+openapi: 3.0.3
+info:
+  title: Realtime Voice API
+  description: Simple Hello World API for realtime voice application
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+servers:
+  - url: http://localhost:3000
+    description: Development server
+paths:
+  /hello:
+    get:
+      summary: Get hello world message
+      description: Returns a simple hello world greeting
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas.yaml#/HelloResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas.yaml#/Error'
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Check if the API is running
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas.yaml#/HealthResponse'
