@@ -1,4 +1,6 @@
 import { BaseToolkit, StructuredToolInterface, tool, ToolSchemaBase } from "@langchain/core/tools";
+import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
+import {InMemoryTransport} from "@modelcontextprotocol/sdk/inMemory.js";
 import z from "zod";
 
 const addTodoParam = z.object({
@@ -26,6 +28,10 @@ export class TodoToolkit extends BaseToolkit {
 
     todos: Record<number, string> = {};
     tools: StructuredToolInterface<ToolSchemaBase, any, any>[];
+    mcpServer: McpServer;
+    mcpServerTransport: InMemoryTransport;
+    mcpClientTransport: InMemoryTransport;
+    
 
     #idIncrementer = 0;
 
@@ -89,6 +95,22 @@ export class TodoToolkit extends BaseToolkit {
                 }
             )
         ]
+        this.mcpServer = new McpServer({
+            name: "todo-toolkit", 
+            version: "1.0.0",
+            title: "Todo Toolkit",
+        }, {
+            instructions: "This toolkit provides basic todo management functions. You can add, get, delete, update, find, and clear todos.",
+        })
+        for (const tool of this.tools) {
+            this.mcpServer.tool(
+                tool.name,
+                tool.description,
+                (tool.schema as unknown as z.ZodObject<any>).shape,
+                tool.invoke as unknown as (params: any) => Promise<any>
+            );
+        }
+        [this.mcpClientTransport, this.mcpServerTransport] = InMemoryTransport.createLinkedPair();
     }
 
     getTools(): StructuredToolInterface[] {

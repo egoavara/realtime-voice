@@ -1,4 +1,5 @@
 import { protos } from "@google-cloud/speech";
+import { MessageContentImageUrl, MessageContentText } from "@langchain/core/messages";
 
 
 export type SpeechAlternative = {
@@ -24,3 +25,48 @@ export type SpeechResponse = {
   speechAdaptationInfo: protos.google.cloud.speech.v1.ISpeechAdaptationInfo,
   requestId: string
 }
+
+export interface TranscriptCandidateAlternative {
+    represent: string;
+    confidence: number;
+}
+
+export interface TranscriptCandidatePart {
+    alternatives: TranscriptCandidateAlternative[];
+}
+
+export interface TranscriptCandidate{
+    requestId: string;
+    represent: string;
+    stableRepresent?: string;
+    parts: TranscriptCandidatePart[]
+}
+
+export interface TranscriptDone{
+    requestId: string;
+    represent: string;
+}
+
+export interface TranscribeSendParams{
+    requestId?: string;
+}
+
+export interface TranscribeSendResult{
+    requestId: string;
+}
+
+export interface TranscribeEventMetadata {
+    requestId?: string;
+}
+
+export interface Transcript {
+    requestId: string;
+    transcriptId: string;
+    text: string;
+}
+
+export type MessageContentSingle = string | MessageContentText | MessageContentImageUrl | (Record<string, any> & {
+    type?: "text" | "image_url" | string;
+}) | (Record<string, any> & {
+    type?: never;
+});

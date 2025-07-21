@@ -1,8 +1,9 @@
 import { protos, SpeechClient } from "@google-cloud/speech";
 import { ChatGoogleGenerativeAI, GoogleGenerativeAIChatInput, GoogleGenerativeAIEmbeddings, GoogleGenerativeAIEmbeddingsParams } from "@langchain/google-genai";
 import EventEmitter from "events";
-import { th } from "zod/locales";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { TRANSCRIBE_AGENT_SYSTEM_PROMPT } from "./transcribe-agent-prompt";
+import { EndSensitivity, GoogleGenAIOptions, LiveConnectConfig, mcpToTool, MediaResolution, Modality, StartSensitivity } from "@google/genai";
 
 export interface TranscribeAgentConfig {
     lazy?: boolean;
@@ -70,6 +71,9 @@ export class TranscribeAgentConfigHelper {
     get googleMaxStreamSizeBytes(): number {
         return 16000 * 2 * 180;
     }
+    get llmModel(): string {
+        return this.#userConfig.model ?? "gemini-2.5-flash";
+    }
     
     chatGoogleGenerativeAI(): GoogleGenerativeAIChatInput {
         return {
@@ -77,6 +81,41 @@ export class TranscribeAgentConfigHelper {
             model: this.#userConfig.model ?? "gemini-2.5-flash",
             temperature: 0.3,
             maxRetries: 3,
+        };
+    }
+    
+    googleGenAI(): GoogleGenAIOptions {
+        return {
+            apiKey: this.llmApiKey,
+        };
+    }
+
+    liveConnectConfig(): LiveConnectConfig {
+        
+        return {
+            responseModalities: [Modality.AUDIO],
+            mediaResolution: MediaResolution.MEDIA_RESOLUTION_MEDIUM,
+            outputAudioTranscription: true,
+            // generationConfig:{},
+            tools:[
+
+            ],
+            inputAudioTranscription: {},
+            systemInstruction: "You are a helpful assistant and answer in a friendly tone.",
+            contextWindowCompression: {
+                triggerTokens: '25600',
+                slidingWindow: { targetTokens: '12800' },
+            },
+            realtimeInputConfig: {
+            //   automaticActivityDetection: {disabled: true},
+              automaticActivityDetection: {
+                disabled: false, // default
+                startOfSpeechSensitivity: StartSensitivity.START_SENSITIVITY_LOW,
+                endOfSpeechSensitivity: EndSensitivity.END_SENSITIVITY_LOW,
+                prefixPaddingMs: 20,
+                silenceDurationMs: 100,
+              }
+            }
         };
     }
 

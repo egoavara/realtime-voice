@@ -1,9 +1,11 @@
 import Ffmpeg from "fluent-ffmpeg";
 import path from "path";
 import { readFileSync, unlinkSync } from "fs";
+import z from "zod";
 
 // 시스템 ffmpeg 사용 (WSL/Linux 환경)
-Ffmpeg.setFfmpegPath('/home/egoavara/miniconda3/bin/ffmpeg');
+// Ffmpeg.setFfmpegPath('/home/egoavara/miniconda3/bin/ffmpeg');
+Ffmpeg.setFfmpegPath('/opt/homebrew/bin/ffmpeg');
 
 // MP3를 PCM으로 변환하는 함수
 export async function convertAudioToPcm(audioPath: string): Promise<Buffer> {

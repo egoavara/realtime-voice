@@ -21,20 +21,21 @@ const ai = new GoogleGenAI({
 // const model = "gemini-live-2.5-flash-preview"
 
 // Native audio output model:
-const model = "models/gemini-2.5-flash-preview-native-audio-dialog"
+const model = "gemini-live-2.5-flash-preview"
 
 const config:LiveConnectConfig = {
-  responseModalities: [Modality.AUDIO],
+  responseModalities: [Modality.TEXT],
   mediaResolution: MediaResolution.MEDIA_RESOLUTION_MEDIUM,
   outputAudioTranscription: true,
   systemInstruction: "You are a helpful assistant and answer in a friendly tone.",
-  speechConfig: {
-    voiceConfig: {
-      prebuiltVoiceConfig: {
-        voiceName: 'Zephyr',
-      }
-    }
-  },
+//   speechConfig: {
+//     voiceConfig: {
+//       prebuiltVoiceConfig: {
+//         voiceName: 'Zephyr',
+//       }
+//     }
+//   },
+    inputAudioTranscription: {},
   contextWindowCompression: {
       triggerTokens: '25600',
       slidingWindow: { targetTokens: '12800' },
@@ -94,7 +95,10 @@ async function live() {
                 console.log('3. 연결 열림 (Opened)');
             },
             onmessage: function (message) {
-                console.log('4. 메시지 수신:', message);
+                console.log("---------------")
+                console.log('4. 메시지 수신:', );
+                console.log(JSON.stringify(message, undefined, 4));
+                console.log("---------------")
                 responseQueue.push(message);
             },
             onerror: function (e) {
@@ -112,7 +116,8 @@ async function live() {
 
     // Ensure audio conforms to API requirements (16-bit PCM, 16kHz, mono)
     console.log("8. MP3 to PCM 변환 시작");
-    const pcm = await convertAudioToPcm("./src/ai/sample/tts.mp3");
+    // const pcm = await convertAudioToPcm("./src/ai/sample/tts.mp3");
+    const pcm = await convertAudioToPcm("./src/ai/sample/test.mp3");
     console.log("9. PCM 변환 완료, 크기:", pcm.length);
     
     const base64Audio = pcmToBase64(pcm);

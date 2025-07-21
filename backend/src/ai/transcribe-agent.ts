@@ -4,7 +4,7 @@ import EventEmitter from "events";
 import type { VectorStoreInterface } from "@langchain/core/vectorstores";
 import { TranscribeAgentConfig, TranscribeAgentConfigHelper } from "./transcribe-agent-config";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
-import { SpeechResponse } from "./transcribe-agent-helpertypes";
+import { MessageContentSingle, SpeechResponse, TranscribeEventMetadata, TranscribeSendParams, TranscribeSendResult, Transcript, TranscriptCandidate, TranscriptCandidateAlternative, TranscriptCandidatePart, TranscriptDone } from "./transcribe-agent-helpertypes";
 import { randomUUID } from "crypto";
 import { ImprovedStreamingClient } from "@google-cloud/speech/build/src/helpers";
 import { TodoToolkit } from "./toolkit-todo";
@@ -14,47 +14,6 @@ import { AIMessage, HumanMessage, MessageContent, MessageContentImageUrl, Messag
 import { TRANSCRIBE_AGENT_AUDIO_DONE } from "./transcribe-agent-prompt";
 import { TypeParams } from "zod/v4/core";
 import { ToolCall } from "node_modules/@langchain/core/dist/messages/tool";
-
-export interface TranscriptCandidateAlternative {
-    represent: string;
-    confidence: number;
-}
-
-export interface TranscriptCandidatePart {
-    alternatives: TranscriptCandidateAlternative[];
-}
-
-export interface TranscriptCandidate{
-    requestId: string;
-    represent: string;
-    stableRepresent?: string;
-    parts: TranscriptCandidatePart[]
-}
-
-export interface TranscriptDone{
-    requestId: string;
-    represent: string;
-}
-
-export interface TranscribeSendParams{
-    requestId?: string;
-}
-
-export interface TranscribeSendResult{
-    requestId: string;
-}
-
-export interface TranscribeEventMetadata {
-    requestId?: string;
-}
-
-export interface Transcript {
-    requestId: string;
-    transcriptId: string;
-    text: string;
-}
-
-export type MessageContentSingle = string | MessageContentText | MessageContentImageUrl | (Record<string, any> & {type?: "text" | "image_url" | string;})
 
 export class TranscribeAgent extends EventEmitter{
     static STATUS_UNINIT = "uninit";
